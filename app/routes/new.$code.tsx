@@ -25,12 +25,10 @@ export default function Index() {
   const { code } = useParams();
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <span>      {code}
-      </span>
+    <div className="flex flex-col space-y-2">
+      <span>{code}</span>
       <span>is</span>
       <a href={url}>{url}</a>
-
     </div>
   );
 }
