@@ -9,12 +9,17 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { type PropsWithChildren } from "react";
 
 import stylesheet from "~/tailwind.css";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
+
+export const MenuItem = ({ children }: PropsWithChildren) => (
+  <li className="mr-8 py-2 font-bold hover:underline">{children}</li>
+);
 
 export default function App() {
   return (
@@ -25,13 +30,35 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-iclip-blue text-white flex flex-col min-h-screen">
         <header>
-          <nav>
-            <Link to="/">Clip</Link> <Link to="/receive">Receive clip</Link>
+          <nav className="">
+            <ul className="h-14 flex flex-row items-center px-8 bg-gray-700 text-white justify-start gap-2">
+              <MenuItem>
+                <Link to="/">Clip a link</Link>
+              </MenuItem>
+              <MenuItem>
+                <Link to="/receive">Receive a clip</Link>
+              </MenuItem>
+            </ul>
           </nav>
         </header>
-        <Outlet />
+        <main className="flex-grow flex justify-center items-center">
+          <Outlet />
+        </main>
+        <footer className="flex justify-center items-center text-sm text-center py-4">
+          <p>
+            Made with ❤️ by{" "}
+            <a
+              href="https://github.com/filiptronicek"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Filip
+            </a>
+          </p>
+        </footer>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
