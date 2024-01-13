@@ -1,30 +1,13 @@
-import { LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
+import { getClip } from "~/utils/api";
 
-export const getClip = async (code: string): Promise<string | null> => {
-  const endpoint = new URL("https://server.interclip.app/api/get");
-  endpoint.searchParams.set("code", code);
-
-  const response = await fetch(endpoint, {
-    method: "GET",
-  });
-  if (!response.ok) {
-    switch (response.status) {
-      case 404:
-        return null;
-      case 403:
-        throw new Error("Invalid code");
-      default:
-        throw new Error(response.statusText);
-    }
+export async function loader({ params }: LoaderFunctionArgs) {
+  if (!params.code) {
+    throw new Error("Code is required");
   }
-  const data = await response.json();
 
-  return data.result;
-};
-
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  return await getClip(params.code!);
+  return await getClip(params.code);
 }
 
 export default function Index() {
@@ -35,15 +18,15 @@ export default function Index() {
     <div className="flex flex-col space-y-2 align-center justify-center items-center">
       {url ? (
         <>
-          <span className="text-4xl">{code}</span>
+          <span className="text-4xl font-mono">{code}</span>
           <span>
             is <a href={url}>{url}</a>
           </span>
         </>
       ) : (
         <>
-          <span className="text-4xl">{code}</span>
-          <span>Was not found. It may have expired</span>
+          <span className="text-4xl font-mono">{code}</span>
+          <span>was not found. It may have expired</span>
         </>
       )}
     </div>

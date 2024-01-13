@@ -30,10 +30,10 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-iclip-blue text-white flex flex-col min-h-screen">
+      <body className="bg-iclip-blue dark:bg-stone-700 text-white flex flex-col min-h-screen">
         <header>
           <nav className="">
-            <ul className="h-14 flex flex-row items-center px-8 bg-gray-700 text-white justify-start gap-2">
+            <ul className="h-14 flex flex-row items-center px-8 bg-stone-900 text-white justify-start gap-2">
               <MenuItem>
                 <Link to="/">Clip a link</Link>
               </MenuItem>
@@ -43,7 +43,7 @@ export default function App() {
             </ul>
           </nav>
         </header>
-        <main className="flex-grow flex justify-center items-center">
+        <main className="flex-grow flex justify-center items-center px-2">
           <Outlet />
         </main>
         <footer className="flex justify-center items-center text-sm text-center py-4">
