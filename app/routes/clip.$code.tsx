@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { getClip } from "~/utils/api";
 
@@ -6,13 +6,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!params.code) {
     throw new Error("Code is required");
   }
+  const url = await getClip(params.code);
 
-  return await getClip(params.code);
+  return json({ url }, { headers: { "Cache-Control": "s-maxage=3600" }, status: url ? 200 : 404 });
 }
 
 export default function Index() {
-  const url = useLoaderData<typeof loader>();
   const { code } = useParams();
+  const { url } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex flex-col space-y-2 align-center justify-center items-center">
