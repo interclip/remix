@@ -8,8 +8,9 @@ export const NavBar = () => {
                 <MenuItem to="/">
                     <img src={interclipLogo} alt="iclip logo" className="mr-4 size-10" />
                 </MenuItem>
-                <MenuItem to="/">Clip a link</MenuItem>
-                <MenuItem to="/receive">Receive a clip</MenuItem>
+                <MenuItem to="/">Clip a Link</MenuItem>
+                <MenuItem to="/file">Send a File</MenuItem>
+                <MenuItem to="/receive">Receive a Clip</MenuItem>
             </ul>
         </nav>
     );

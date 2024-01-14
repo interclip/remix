@@ -17,7 +17,7 @@ export default function Index() {
 
     return (
         <div className="align-center flex flex-col items-center justify-center space-y-2">
-            {url ? (
+            {url ?
                 <>
                     <span>The code</span>
                     <span className="font-mono text-4xl">{code}</span>
@@ -26,13 +26,12 @@ export default function Index() {
                         {url}
                     </a>
                 </>
-            ) : (
-                <>
+            :   <>
                     <span>The code</span>
                     <span className="font-mono text-4xl">{code}</span>
                     <span>was not found. It may have expired</span>
                 </>
-            )}
+            }
         </div>
     );
 }
