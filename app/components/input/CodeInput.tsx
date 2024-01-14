@@ -7,7 +7,7 @@ export const CodeInput = ({ isLoading }: Props) => {
             type="text"
             name="code"
             pattern="[a-zA-Z0-9]{5}"
-            className="border-4 border-white rounded px-3 text-black text-5xl max-w-xl w-56 text-center h-16 shadow-xl"
+            className="h-16 w-56 max-w-xl rounded border-4 border-white px-3 text-center text-5xl text-black shadow-xl"
             placeholder="*****"
             required
             disabled={isLoading}

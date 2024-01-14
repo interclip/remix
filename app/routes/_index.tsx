@@ -4,26 +4,26 @@ import { UrlInput } from "~/components/input/UrlInput";
 import { createClip } from "~/utils/api";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const url = formData.get("url")?.toString();
+    const formData = await request.formData();
+    const url = formData.get("url")?.toString();
 
-  if (!url) {
-    throw new Error("URL is required");
-  }
+    if (!url) {
+        throw new Error("URL is required");
+    }
 
-  const clipCode = await createClip(url);
+    const clipCode = await createClip(url);
 
-  return redirect(`/clip/${clipCode}`);
+    return redirect(`/clip/${clipCode}`);
 }
 
 export default function Index() {
-  const navigation = useNavigation();
+    const navigation = useNavigation();
 
-  const isSubmitting = navigation.state === "submitting";
-  return (
-    <Form method="post">
-      <h1 className="text-5xl font-bold my-4">Paste your link here!</h1>
-      <UrlInput isLoading={isSubmitting} />
-    </Form>
-  );
+    const isSubmitting = navigation.state === "submitting";
+    return (
+        <Form method="post">
+            <h1 className="my-4 text-5xl font-bold">Paste your link here!</h1>
+            <UrlInput isLoading={isSubmitting} />
+        </Form>
+    );
 }
