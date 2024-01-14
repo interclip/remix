@@ -75,7 +75,15 @@ export class UploadFileError extends Error {
  * @param file The file to upload.
  * @returns a URL of the uploaded file. If a user aborts the request, null is returned.
  */
-export const uploadFile = async (file: File, onProgress: (progress: ProgressEvent) => void): Promise<string | null> => {
+export const uploadFile = async ({
+    file,
+    onProgress,
+    abortSignal,
+}: {
+    file: File;
+    onProgress: (progress: ProgressEvent) => void;
+    abortSignal: AbortSignal;
+}): Promise<string | null> => {
     onProgress({ stage: "start", progress: 0 });
 
     const urlToFetch = new URL("https://iclip.vercel.app");
@@ -84,10 +92,7 @@ export const uploadFile = async (file: File, onProgress: (progress: ProgressEven
     urlToFetch.searchParams.set("type", file.type);
     urlToFetch.searchParams.set("size", file.size.toString());
 
-    const controller = new AbortController();
-    const { signal } = controller;
-
-    const uploadUrlResponse = await fetch(urlToFetch, { signal });
+    const uploadUrlResponse = await fetch(urlToFetch, { signal: abortSignal });
 
     // Upload the file to the presigned URL
     if (!uploadUrlResponse.ok) {
@@ -125,8 +130,9 @@ export const uploadFile = async (file: File, onProgress: (progress: ProgressEven
     uploadRequest.send(formData);
 
     return new Promise((resolve, reject) => {
-        controller.signal.addEventListener("abort", () => {
-            reject("Upload aborted");
+        abortSignal.addEventListener("abort", () => {
+            uploadRequest.abort();
+            return resolve(null);
         });
         uploadRequest.addEventListener("load", () => {
             const { status } = uploadRequest;

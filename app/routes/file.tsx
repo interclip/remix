@@ -1,12 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/Dialog";
 import { UploadFileError, createClip, uploadFile } from "~/utils/api";
 import { cn } from "~/utils/cn";
-import { type ProgressEvent } from "~/utils/api";
-import { formatBytes } from "~/utils/formatters";
+import type { ProgressEvent } from "~/utils/api";
+import { formatBytes, formatPercent } from "~/utils/formatters";
 import { redirect, useFetcher } from "@remix-run/react";
-import { type ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { Button } from "~/components/ui/Button";
 
 export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -21,6 +22,12 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Index() {
     const clip = useFetcher();
 
+    // we'd like to reset the controller after a reset because if we don't, subsequent uploads will fail
+    const [resetAbortController, setResetAbortController] = useState(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const abortController = useMemo(() => new AbortController(), [resetAbortController]);
+    const abort = useCallback(() => abortController.abort(), [abortController]);
+
     const onProgress = useCallback((progress: ProgressEvent) => {
         setDialogOpen(true);
         switch (progress.stage) {
@@ -30,11 +37,12 @@ export default function Index() {
                 break;
             case "progress":
                 setDialogTitle("Uploading file");
-                setDialogMessage(`Uploading file... ${progress.progress ? `${progress.progress * 100}%` : ""}`);
+                setDialogMessage(
+                    `Uploading file... ${progress.progress ? `${formatPercent(progress.progress)}%` : ""}`,
+                );
                 break;
             case "end":
                 setDialogMessage("Creating clip...");
-                setDialogOpen(false);
         }
     }, []);
 
@@ -62,18 +70,27 @@ export default function Index() {
                     return;
                 }
 
-                const fileUrl = await uploadFile(file, onProgress).catch((e) => {
-                    setDialogTitle("There was an issue with uploading your file");
-                    if (e instanceof UploadFileError) {
-                        setDialogMessage(e.message);
-                    } else {
-                        setDialogMessage("An unknown error occurred while uploading the file.");
-                    }
-                    setDialogOpen(true);
-                });
+                setIsLoading(true);
+
+                const fileUrl = await uploadFile({ file, onProgress, abortSignal: abortController.signal }).catch(
+                    (e) => {
+                        setDialogTitle("There was an issue with uploading your file");
+                        if (e instanceof UploadFileError) {
+                            setDialogMessage(e.message);
+                        } else if (e.name === "AbortError") {
+                            setDialogOpen(false);
+                        } else {
+                            setDialogMessage("An unknown error occurred while uploading the file.");
+                        }
+                        setDialogOpen(true);
+                    },
+                );
 
                 // no-op. This was a deliberate abort.
                 if (!fileUrl) {
+                    setResetAbortController((prev) => !prev);
+                    setIsLoading(false);
+                    setDialogOpen(false);
                     return;
                 }
 
@@ -83,10 +100,13 @@ export default function Index() {
                 clip.submit(formData, { method: "post" });
             })();
         },
-        [clip, onProgress],
+        [abortController.signal, clip, onProgress, setResetAbortController],
     );
 
-    const { getRootProps, isDragActive } = useDropzone({ onDrop });
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+    const [isLoading, setIsLoading] = useState(false);
+
     const [errorDialogOpen, setDialogOpen] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogMessage, setDialogMessage] = useState("");
@@ -102,14 +122,16 @@ export default function Index() {
                     isDragActive && "opacity-50",
                 )}
             >
+                <input {...getInputProps()} />
                 <span>Drag a file here or click to select</span>
             </div>
 
-            <Dialog open={errorDialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={errorDialogOpen} onOpenChange={!isLoading ? setDialogOpen : abort}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{dialogTitle}</DialogTitle>
                         <DialogDescription>{dialogMessage}</DialogDescription>
+                        <Button onClick={abort}>Cancel</Button>
                     </DialogHeader>
                 </DialogContent>
             </Dialog>
