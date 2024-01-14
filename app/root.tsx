@@ -1,4 +1,3 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
 import type { LinksFunction } from "@remix-run/node";
 import {
   Link,
@@ -9,17 +8,13 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { type PropsWithChildren } from "react";
 
 import stylesheet from "~/tailwind.css";
+import { MenuItem } from "./components/menu/MenuItem";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
-
-export const MenuItem = ({ children }: PropsWithChildren) => (
-  <li className="mr-8 py-2 font-bold hover:underline">{children}</li>
-);
 
 export default function App() {
   return (
@@ -34,11 +29,11 @@ export default function App() {
         <header>
           <nav className="">
             <ul className="h-14 flex flex-row items-center px-8 bg-stone-900 text-white justify-start gap-2">
-              <MenuItem>
-                <Link to="/">Clip a link</Link>
+              <MenuItem to="/">
+                Clip a link
               </MenuItem>
-              <MenuItem>
-                <Link to="/receive">Receive a clip</Link>
+              <MenuItem to="/receive">
+                Receive a clip
               </MenuItem>
             </ul>
           </nav>

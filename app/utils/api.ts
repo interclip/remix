@@ -28,7 +28,7 @@ export const createClip = async (url: string): Promise<string> => {
  */
 export const getClip = async (code: string): Promise<string | null> => {
   const endpoint = new URL("https://server.interclip.app/api/get");
-  endpoint.searchParams.set("code", code);
+  endpoint.searchParams.set("code", code.toLowerCase());
 
   const response = await fetch(endpoint, {
     method: "GET",

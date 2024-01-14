@@ -18,13 +18,16 @@ export default function Index() {
     <div className="flex flex-col space-y-2 align-center justify-center items-center">
       {url ? (
         <>
+          <span>The code</span>
           <span className="text-4xl font-mono">{code}</span>
           <span>
-            is <a href={url}>{url}</a>
+            is
           </span>
+          <a href={url} className="max-w-[90vw] underline text-lg md:max-w-lg truncate">{url}</a>
         </>
       ) : (
         <>
+          <span>The code</span>
           <span className="text-4xl font-mono">{code}</span>
           <span>was not found. It may have expired</span>
         </>
