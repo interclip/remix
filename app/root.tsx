@@ -4,10 +4,18 @@ import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@re
 import stylesheet from "~/tailwind.css";
 import { NavBar } from "./components/menu/NavBar";
 import { Footer } from "./components/footer/Footer";
+import { useCallback } from "react";
+import { useDropzone } from "react-dropzone-esm";
+import { cn } from "./utils/cn";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: stylesheet }];
 
 export default function App() {
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        console.log(acceptedFiles.length);
+    }, []);
+    const { getRootProps, isDragActive } = useDropzone({ onDrop });
+
     return (
         <html lang="en">
             <head>
@@ -17,7 +25,13 @@ export default function App() {
                 <Meta />
                 <Links />
             </head>
-            <body className="flex min-h-screen flex-col bg-iclip-blue text-white dark:bg-stone-700">
+            <body
+                className={cn(
+                    "flex min-h-screen flex-col bg-iclip-blue text-white dark:bg-stone-700",
+                    isDragActive && "border-4 border-dashed",
+                )}
+                {...getRootProps()}
+            >
                 <header>
                     <NavBar />
                 </header>

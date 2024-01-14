@@ -21,9 +21,11 @@ export default function Index() {
 
     const isSubmitting = navigation.state === "submitting";
     return (
-        <Form method="post">
-            <h1 className="my-4 text-5xl font-bold">Paste your link here!</h1>
-            <UrlInput isLoading={isSubmitting} />
-        </Form>
+        <section className="flex h-full w-full flex-grow items-center justify-center">
+            <Form method="post" className="">
+                <h1 className="my-4 text-5xl font-bold">Paste your link here!</h1>
+                <UrlInput isLoading={isSubmitting} />
+            </Form>
+        </section>
     );
 }
