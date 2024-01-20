@@ -6,7 +6,7 @@ type Props = {
 };
 export const MenuItem = ({ children, ...props }: PropsWithChildren<Props>) => (
     <li>
-        <Link className="p-4 font-bold hover:underline" {...props}>
+        <Link className="p-4 font-bold hover:underline" prefetch="intent" {...props}>
             {children}
         </Link>
     </li>
