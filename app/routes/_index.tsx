@@ -6,7 +6,6 @@ import { createClip } from "~/utils/api";
 export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
     const url = formData.get("url")?.toString();
-
     if (!url) {
         throw new Error("URL is required");
     }
