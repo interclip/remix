@@ -1,5 +1,5 @@
 import type { LinksFunction } from "@remix-run/node";
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import { Links, LiveReload, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
 
 import stylesheet from "~/tailwind.css";
 import { NavBar } from "./components/menu/NavBar";
@@ -7,6 +7,25 @@ import { Footer } from "./components/footer/Footer";
 import { cn } from "./utils/cn";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: stylesheet }];
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "Interclip" },
+        {
+            property: "og:title",
+            content: "Interclip",
+        },
+        {
+            name: "description",
+            content: "Interclip is a simple, secure and private URL sharing service.",
+        },
+        // todo: add these once deployed
+        // {
+        //     property: "og:image",
+        //     content: "https://interclip.app/header.png",
+        // },
+    ];
+};
 
 export default function App() {
     return (
