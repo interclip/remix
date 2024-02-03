@@ -4,7 +4,11 @@ const genericApiResponseSchema = z.object({
     status: z.enum(["success", "error"]),
     result: z.string(),
 });
-type GenericApiResponse = z.infer<typeof genericApiResponseSchema>;
+
+const uploadFileResponseSchema = z.object({
+    url: z.string(),
+    fields: z.record(z.string()),
+});
 
 /**
  * Creates a clip from a given URL.
@@ -64,11 +68,6 @@ export const getClip = async (code: string): Promise<string | null> => {
     return parsedData.data.result;
 };
 
-type UploadFileResponse = {
-    url: string;
-    fields: Record<string, string>;
-};
-
 export type ProgressEvent = {
     stage: "start" | "progress" | "end";
     progress: number | null;
@@ -107,16 +106,21 @@ export const uploadFile = async ({
 
     // Upload the file to the presigned URL
     if (!uploadUrlResponse.ok) {
-        const data: GenericApiResponse = await uploadUrlResponse.json();
+        const data = await uploadUrlResponse.json();
+        const parsedData = genericApiResponseSchema.safeParse(data);
+        if (!parsedData.success) {
+            throw new UploadFileError("Invalid server response schema");
+        }
+
         switch (uploadUrlResponse.status) {
             case 404:
                 throw new UploadFileError("API Endpoint not found");
             case 413:
-                throw new UploadFileError(data.result);
+                throw new UploadFileError(parsedData.data.result);
             case 500:
                 throw new UploadFileError("The server failed to initiate the upload. Please try again later");
             case 503:
-                throw new UploadFileError(data.result);
+                throw new UploadFileError(parsedData.data.result);
         }
 
         throw new UploadFileError(await uploadUrlResponse.text());
@@ -124,9 +128,14 @@ export const uploadFile = async ({
 
     onProgress({ progress: 0, stage: "progress" });
 
-    const { url, fields }: UploadFileResponse = await uploadUrlResponse.json();
-    const formData = new FormData();
+    const responseData = await uploadUrlResponse.json();
+    const parsedResponseData = uploadFileResponseSchema.safeParse(responseData);
+    if (!parsedResponseData.success) {
+        throw new UploadFileError("Invalid server response schema");
+    }
+    const { url, fields } = parsedResponseData.data;
 
+    const formData = new FormData();
     Object.entries({ ...fields, file }).forEach(([key, value]) => {
         formData.append(key, value);
     });
