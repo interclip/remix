@@ -1,7 +1,10 @@
-type GenericApiResponse = {
-    status: "success" | "error";
-    result: string;
-};
+import { z } from "zod";
+
+const genericApiResponseSchema = z.object({
+    status: z.enum(["success", "error"]),
+    result: z.string(),
+});
+type GenericApiResponse = z.infer<typeof genericApiResponseSchema>;
 
 /**
  * Creates a clip from a given URL.
@@ -19,12 +22,17 @@ export const createClip = async (url: string): Promise<string> => {
         }).toString(),
     });
 
-    const data: GenericApiResponse = await response.json();
-    if (!response.ok) {
-        throw new Error(data.result);
+    const responseData = await response.json();
+    const parsedData = genericApiResponseSchema.safeParse(responseData);
+    if (!parsedData.success) {
+        throw new Error("Invalid server response schema", parsedData.error);
     }
 
-    return data.result;
+    if (parsedData.data.status !== "success") {
+        throw new Error(parsedData.data.result);
+    }
+
+    return parsedData.data.result;
 };
 
 /**
@@ -40,17 +48,20 @@ export const getClip = async (code: string): Promise<string | null> => {
         method: "GET",
     });
 
-    const data: GenericApiResponse = await response.json();
-    if (!response.ok) {
-        switch (response.status) {
-            case 404:
-                return null;
-            default:
-                throw new Error(data.result);
-        }
+    const responseData = await response.json();
+    const parsedData = genericApiResponseSchema.safeParse(responseData);
+    if (!parsedData.success) {
+        throw new Error("Invalid server response schema", parsedData.error);
     }
 
-    return data.result;
+    if (!response.ok) {
+        if (response.status === 404) {
+            return null;
+        }
+        throw new Error(parsedData.data.result);
+    }
+
+    return parsedData.data.result;
 };
 
 type UploadFileResponse = {
