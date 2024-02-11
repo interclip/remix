@@ -10,6 +10,7 @@ export const CodeInput = ({ isLoading }: Props) => {
             className="h-16 w-56 max-w-xl rounded border-4 border-white px-3 text-center text-5xl text-black shadow-xl"
             placeholder="*****"
             required
+            autoFocus
             disabled={isLoading}
         />
     );
