@@ -10,6 +10,9 @@ const uploadFileResponseSchema = z.object({
     fields: z.record(z.string()),
 });
 
+// Alpha-numeric, case-insensitive, 5 characters long.
+const codeSchema = z.string().regex(/^[a-zA-Z0-9]{5}$/);
+
 /**
  * Creates a clip from a given URL.
  * @returns The code of the created clip.
@@ -39,12 +42,24 @@ export const createClip = async (url: string): Promise<string> => {
     return parsedData.data.result;
 };
 
+export class InputValidationError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "InputValidationError";
+    }
+}
+
 /**
  * Queries the server for a clip.
  * @param code The code of the clip to get.
  * @returns The URL of the clip, or null if the clip was not found.
  */
 export const getClip = async (code: string): Promise<string | null> => {
+    const parsedCode = codeSchema.safeParse(code);
+    if (!parsedCode.success) {
+        throw new InputValidationError("Invalid code format");
+    }
+
     const endpoint = new URL("https://server.interclip.app/api/get");
     endpoint.searchParams.set("code", code.toLowerCase());
 
