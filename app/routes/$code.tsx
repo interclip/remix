@@ -16,7 +16,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
         return redirect(url);
     } catch (e) {
         if (e instanceof InputValidationError) {
-            return json({ error: e.message, status: 400 });
+            throw new Response(null, {
+                status: 404,
+                statusText: "Not Found",
+            });
         }
 
         throw e;

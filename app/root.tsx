@@ -1,5 +1,15 @@
 import type { LinksFunction } from "@remix-run/node";
-import { Links, LiveReload, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import {
+    Links,
+    LiveReload,
+    Meta,
+    type MetaFunction,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
+    useRouteError,
+    isRouteErrorResponse,
+} from "@remix-run/react";
 
 import stylesheet from "~/tailwind.css";
 import { NavBar } from "./components/menu/NavBar";
@@ -43,6 +53,40 @@ export default function App() {
                 </header>
                 <main className="flex flex-grow items-center justify-center px-2">
                     <Outlet />
+                </main>
+                <Footer />
+                <ScrollRestoration />
+                <Scripts />
+                <LiveReload />
+            </body>
+        </html>
+    );
+}
+
+export function ErrorBoundary() {
+    const error = useRouteError();
+
+    return (
+        <html lang="en">
+            <head>
+                <title>Interclip</title>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <Meta />
+                <Links />
+            </head>
+            <body className={cn("flex min-h-screen flex-col bg-iclip-blue text-white dark:bg-stone-700")}>
+                <header>
+                    <NavBar />
+                </header>
+                <main className="flex flex-grow items-center justify-center px-2">
+                    <h1 className="text-3xl">
+                        {isRouteErrorResponse(error) ?
+                            `${error.status} ${error.statusText}`
+                        : error instanceof Error ?
+                            error.message
+                        :   "Unknown Error"}
+                    </h1>
                 </main>
                 <Footer />
                 <ScrollRestoration />
