@@ -1,5 +1,6 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
+import QRCodeSVG from "@wojtekmaj/react-qr-svg";
 import { getClip } from "~/utils/api";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -20,11 +21,13 @@ export default function Index() {
             {url ?
                 <>
                     <span>The code</span>
-                    <span className="font-mono text-4xl">{code}</span>
+                    <span className="font-mono text-5xl">{code}</span>
                     <span>is</span>
-                    <a href={url} className="max-w-[90vw] truncate text-lg underline md:max-w-lg">
+                    <a href={url} className="max-w-[90vw] truncate text-xl underline md:max-w-lg">
                         {url}
                     </a>
+                    <span className="h-6" />
+                    <QRCodeSVG bgColor={"transparent"} className="size-56" fgColor={"white"} value={url} />
                 </>
             :   <>
                     <span>The code</span>
